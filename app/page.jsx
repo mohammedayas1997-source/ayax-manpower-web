@@ -385,7 +385,7 @@ export default function HomePage() {
               <div className="aspect-video w-full bg-black relative">
                 <iframe 
                   className="w-full h-full"
-                  src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0" 
+                  src="https://youtu.be/r3723BzZJ14?list=PLebew5L43Bpg" 
                   title="AYAX Candidate Orientation Video"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -402,7 +402,7 @@ export default function HomePage() {
               <div className="aspect-video w-full bg-black relative">
                 <iframe 
                   className="w-full h-full"
-                  src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0" 
+                  src="https://youtu.be/DHS-XsZhoJQ" 
                   title="Trade Skill Evaluation Desk"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
