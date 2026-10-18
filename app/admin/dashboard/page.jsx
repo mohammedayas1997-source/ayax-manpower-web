@@ -1,14 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabaseClient';
+import { supabase } from '../../../lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 
 export default function AdminDashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview'); // overview, candidates, employer-requests, finances, post-job, jobs, staff
-  const [lang, setLang] = useState('en'); // en, ar, fr
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [lang, setLang] = useState('en');
 
   // Core Data Collections
   const [candidates, setCandidates] = useState([]);
@@ -17,11 +18,11 @@ export default function AdminDashboard() {
   const [staffMembers, setStaffMembers] = useState([]);
   const [payments, setPayments] = useState([]);
 
-  // Search & Filters
+  // Search & Filter Controls
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  // Contact Address Editing / Viewing Modal
+  // Contact Modal State
   const [contactModalData, setContactModalData] = useState(null);
   const [savingContact, setSavingContact] = useState(false);
 
@@ -204,7 +205,6 @@ export default function AdminDashboard() {
 
   const loadDashboardData = async () => {
     try {
-      // 1. Fetch Candidates with Address & Contact Info
       const { data: candidateData } = await supabase
         .from('candidate_profiles')
         .select('*')
@@ -213,7 +213,6 @@ export default function AdminDashboard() {
 
       if (candidateData) setCandidates(candidateData);
 
-      // 2. Fetch Job Vacancies
       const { data: jobData } = await supabase
         .from('jobs')
         .select('*')
@@ -221,7 +220,6 @@ export default function AdminDashboard() {
 
       if (jobData) setJobs(jobData);
 
-      // 3. Corporate Quota Requests with Headquarter Addresses
       const mockRequests = [
         {
           id: 'REQ-101',
@@ -271,7 +269,6 @@ export default function AdminDashboard() {
       ];
       setEmployerRequests(mockRequests);
 
-      // 4. Load Staff Accounts
       const { data: staffData } = await supabase
         .from('candidate_profiles')
         .select('*')
@@ -279,7 +276,6 @@ export default function AdminDashboard() {
 
       if (staffData) setStaffMembers(staffData);
 
-      // 5. Fetch Payment Transactions
       const { data: paymentsData, error: payError } = await supabase
         .from('payments')
         .select('*')
@@ -288,7 +284,6 @@ export default function AdminDashboard() {
       if (!payError && paymentsData && paymentsData.length > 0) {
         setPayments(paymentsData);
       } else {
-        // Mock payments if database table is initially empty
         setPayments([
           {
             id: 'TXN-90214',
@@ -489,9 +484,21 @@ export default function AdminDashboard() {
     }, 2500);
   };
 
+  // Fixed Live Logout Function
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
+    try {
+      await supabase.auth.signOut();
+      if (typeof window !== 'undefined') {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = '/login';
+      } else {
+        router.push('/login');
+      }
+    } catch (err) {
+      console.error('Logout error:', err);
+      window.location.href = '/login';
+    }
   };
 
   const totalSuccessfulRevenue = payments
@@ -527,22 +534,47 @@ export default function AdminDashboard() {
   return (
     <div className={`min-h-screen bg-slate-900 text-slate-100 flex font-sans ${lang === 'ar' ? 'rtl' : 'ltr'}`}>
       
-      {/* 1. Global Side Navigation Bar */}
-      <aside className="w-64 bg-[#071626] border-r border-slate-800 flex flex-col justify-between shrink-0 select-none print:hidden">
+      {/* 1. Backdrop Overlay when Sidebar is Open */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 transition-opacity"
+        ></div>
+      )}
+
+      {/* 2. Collapsible Drawer Sidebar (Opens only via Menu Button) */}
+      <aside
+        className={`fixed top-0 bottom-0 z-50 w-72 bg-[#071626] border-r border-slate-800 flex flex-col justify-between shadow-2xl transition-transform duration-300 ease-in-out select-none print:hidden ${
+          sidebarOpen
+            ? 'translate-x-0'
+            : lang === 'ar'
+            ? 'translate-x-full'
+            : '-translate-x-full'
+        } ${lang === 'ar' ? 'right-0' : 'left-0'}`}
+      >
         <div>
-          {/* Logo Brand Header */}
-          <div className="p-5 border-b border-slate-800/80 flex items-center gap-3">
-            <img src="/logo.png" alt="AYAX Global" className="h-9 w-auto bg-white p-1 rounded-md" />
-            <div>
-              <span className="text-sm font-black tracking-wider text-white block leading-tight">{t.brand}</span>
-              <span className="text-[10px] text-sky-400 font-bold uppercase tracking-widest block">Executive Console</span>
+          {/* Brand Header with Close Button */}
+          <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src="/logo.png" alt="AYAX Global" className="h-9 w-auto bg-white p-1 rounded-md" />
+              <div>
+                <span className="text-sm font-black tracking-wider text-white block leading-tight">{t.brand}</span>
+                <span className="text-[10px] text-sky-400 font-bold uppercase tracking-widest block">Executive Console</span>
+              </div>
             </div>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              title="Close Menu"
+            >
+              ✕
+            </button>
           </div>
 
           {/* Navigation Links */}
           <nav className="p-3 space-y-1.5 text-xs font-semibold">
             <button
-              onClick={() => setActiveTab('overview')}
+              onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition ${
                 activeTab === 'overview'
                   ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30'
@@ -554,7 +586,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab('candidates')}
+              onClick={() => { setActiveTab('candidates'); setSidebarOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition ${
                 activeTab === 'candidates'
                   ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30'
@@ -571,7 +603,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab('employer-requests')}
+              onClick={() => { setActiveTab('employer-requests'); setSidebarOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition ${
                 activeTab === 'employer-requests'
                   ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30'
@@ -588,7 +620,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab('finances')}
+              onClick={() => { setActiveTab('finances'); setSidebarOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition ${
                 activeTab === 'finances'
                   ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30'
@@ -605,7 +637,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab('post-job')}
+              onClick={() => { setActiveTab('post-job'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition ${
                 activeTab === 'post-job'
                   ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30'
@@ -617,7 +649,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab('jobs')}
+              onClick={() => { setActiveTab('jobs'); setSidebarOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition ${
                 activeTab === 'jobs'
                   ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30'
@@ -634,7 +666,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab('staff')}
+              onClick={() => { setActiveTab('staff'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition ${
                 activeTab === 'staff'
                   ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30'
@@ -647,8 +679,8 @@ export default function AdminDashboard() {
           </nav>
         </div>
 
-        {/* Sidebar Footer Language & Sign Out */}
-        <div className="p-4 border-t border-slate-800/80 space-y-3">
+        {/* Sidebar Footer Controls */}
+        <div className="p-4 border-t border-slate-800 space-y-3">
           <div className="flex items-center justify-between bg-slate-800/60 p-2 rounded-xl text-xs">
             <span className="text-slate-400 font-semibold">Language</span>
             <div className="flex gap-1 font-bold">
@@ -673,21 +705,33 @@ export default function AdminDashboard() {
             </div>
           </div>
 
+          {/* Working Real-Live Sign Out Button */}
           <button
             onClick={handleSignOut}
-            className="w-full py-2 px-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 font-bold text-xs rounded-xl transition"
+            className="w-full py-2.5 px-3 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 font-bold text-xs rounded-xl transition flex items-center justify-center gap-2"
           >
-            {t.signOut}
+            <span>🚪</span>
+            <span>{t.signOut}</span>
           </button>
         </div>
       </aside>
 
-      {/* 2. Main Executive Work Area */}
-      <div className="flex-1 flex flex-col overflow-y-auto">
-        {/* Top Header Bar */}
-        <header className="h-16 bg-[#091e32] border-b border-slate-800 px-6 flex items-center justify-between sticky top-0 z-20 print:hidden">
-          <div className="flex items-center gap-3">
-            <h2 className="text-sm font-bold tracking-wide uppercase text-slate-200">
+      {/* 3. Full-Width Main Executive Work Area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        {/* Top Header Bar with Menu Button */}
+        <header className="h-16 bg-[#091e32] border-b border-slate-800 px-6 flex items-center justify-between sticky top-0 z-30 print:hidden">
+          <div className="flex items-center gap-4">
+            {/* The Trigger Menu Button */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="p-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-slate-700 transition flex items-center gap-2 text-xs font-bold"
+              title="Open Navigation Menu"
+            >
+              <span className="text-base leading-none">☰</span>
+              <span className="hidden sm:inline">Menu</span>
+            </button>
+
+            <h2 className="text-sm font-bold tracking-wide uppercase text-slate-200 truncate">
               {activeTab.replace('-', ' ')}
             </h2>
           </div>
@@ -696,7 +740,7 @@ export default function AdminDashboard() {
             <div className="hidden sm:flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-xl">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               <span className="text-[11px] font-bold text-emerald-400 font-mono">
-                Total Revenue: ₦{totalSuccessfulRevenue.toLocaleString()}
+                Revenue: ₦{totalSuccessfulRevenue.toLocaleString()}
               </span>
             </div>
 
@@ -706,12 +750,18 @@ export default function AdminDashboard() {
               rel="noreferrer"
               className="text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1.5"
             >
-              <span>Portal Frontpage</span>
+              <span>Portal Front</span>
               <span>↗</span>
             </a>
-            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-xs">
-              AD
-            </div>
+
+            {/* Direct Quick Logout Button on Top Nav */}
+            <button
+              onClick={handleSignOut}
+              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition shadow-sm"
+              title="Sign Out of Portal"
+            >
+              Sign Out
+            </button>
           </div>
         </header>
 
@@ -751,7 +801,6 @@ export default function AdminDashboard() {
 
               {/* Overview Sub-Sections */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Recent Payments Preview */}
                 <div className="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-6">
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="text-sm font-bold text-white">Recent Financial Transactions</h3>
@@ -777,7 +826,6 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* Recent Employer Requisitions */}
                 <div className="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-6">
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="text-sm font-bold text-white">Active Corporate Quotas</h3>
@@ -948,7 +996,6 @@ export default function AdminDashboard() {
                             </td>
 
                             <td className="p-4 text-right space-x-2">
-                              {/* Direct Calling & Messaging Action Hub */}
                               <div className="inline-flex gap-1.5 mr-2">
                                 {cand.email && (
                                   <a
@@ -1002,7 +1049,7 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* TAB 3: CORPORATE EMPLOYER QUOTA REQUESTS WITH HEADQUARTERS ADDRESSES */}
+          {/* TAB 3: CORPORATE EMPLOYER QUOTA REQUESTS */}
           {activeTab === 'employer-requests' && (
             <div className="space-y-6">
               <div className="bg-slate-800/80 border border-slate-700 p-6 rounded-2xl shadow-lg">
@@ -1027,7 +1074,6 @@ export default function AdminDashboard() {
                         <h4 className="font-extrabold text-white text-base leading-snug">{req.company_name}</h4>
                         <div className="text-[11px] font-mono text-slate-400 mt-0.5">RC: {req.commercial_rc}</div>
                         
-                        {/* Address & Direct Contact Info Box */}
                         <div className="mt-4 p-3 bg-slate-800/80 rounded-xl text-xs space-y-2 border border-slate-700/60">
                           <div>
                             <span className="text-[10px] font-bold uppercase text-slate-400 block">Registered Headquarters:</span>
@@ -1077,7 +1123,6 @@ export default function AdminDashboard() {
           {/* TAB 4: FINANCIAL AUDITING & PAYMENT LEDGER */}
           {activeTab === 'finances' && (
             <div className="space-y-6">
-              {/* Financial Summary Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-slate-800/90 border border-slate-700 p-5 rounded-2xl shadow-lg">
                   <span className="text-[11px] font-bold uppercase text-emerald-400 tracking-wider block">Total Audited Revenue</span>
@@ -1102,7 +1147,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Payments Detailed Table */}
               <div className="bg-slate-800/90 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
                 <div className="p-4 border-b border-slate-700 flex justify-between items-center">
                   <h3 className="text-sm font-bold text-white">Live Payment Transactions & Ledger Log</h3>
@@ -1375,7 +1419,6 @@ export default function AdminDashboard() {
                 </form>
               </div>
 
-              {/* Existing Staff Roster */}
               <div className="bg-slate-800/80 border border-slate-700 p-6 rounded-2xl shadow-xl">
                 <h4 className="text-sm font-bold text-white mb-4">Authorized Administrative Personnel</h4>
                 <div className="divide-y divide-slate-700/60 text-xs">
@@ -1398,7 +1441,7 @@ export default function AdminDashboard() {
         </main>
       </div>
 
-      {/* 3. CONTACT & ADDRESS EDITING DOSSIER MODAL */}
+      {/* 4. CONTACT & ADDRESS EDITING DOSSIER MODAL */}
       {contactModalData && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-[#0a2540] border border-slate-700 w-full max-w-xl rounded-2xl p-6 shadow-2xl text-xs space-y-4">
@@ -1535,7 +1578,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* 4. DISPATCH MODAL FOR CORPORATE NOTIFICATIONS */}
+      {/* 5. DISPATCH MODAL FOR CORPORATE NOTIFICATIONS */}
       {selectedRequest && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-[#0a2540] border border-slate-700 w-full max-w-2xl rounded-2xl p-6 shadow-2xl text-xs space-y-4">
