@@ -484,20 +484,39 @@ export default function AdminDashboard() {
     }, 2500);
   };
 
-  // Fixed Live Logout Function
+  // Bulletproof Instant Logout Protocol
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
+      // 1. Goge dukkan cookies da ke dauke da zaman Supabase
+      if (typeof document !== 'undefined') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i];
+          const eqPos = cookie.indexOf('=');
+          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
+        }
+      }
+
+      // 2. Share LocalStorage da SessionStorage
       if (typeof window !== 'undefined') {
         localStorage.clear();
         sessionStorage.clear();
-        window.location.href = '/login';
-      } else {
-        router.push('/login');
       }
+
+      // 3. Tura bukatar fita zuwa Supabase tare da timeout don kada ta makale
+      const signOutPromise = supabase.auth.signOut();
+      const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 600));
+      await Promise.race([signOutPromise, timeoutPromise]);
     } catch (err) {
-      console.error('Logout error:', err);
-      window.location.href = '/login';
+      console.error('Sign out error:', err);
+    } finally {
+      // 4. Tilasta burawzar komawa shafin login kai tsaye
+      if (typeof window !== 'undefined') {
+        window.location.replace('/login');
+      } else {
+        router.replace('/login');
+      }
     }
   };
 
