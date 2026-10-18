@@ -18,7 +18,6 @@ export default function LoginPage() {
     setErrorMsg('');
 
     try {
-      // 1. Login ta hanyar Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -26,24 +25,56 @@ export default function LoginPage() {
 
       if (authError) throw authError;
 
-      const userId = authData.user?.id;
+      const user = authData.user;
+      const userId = user?.id;
 
-      // 2. Dubo irin matsayin da mutumin yake da shi (Candidate, Employer, Staff, ko Admin)
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', userId)
-        .single();
+      let userRole = user?.user_metadata?.role || null;
 
-      if (userError) throw userError;
+      if (!userRole) {
+        const { data: profileData } = await supabase
+          .from('candidate_profiles')
+          .select('role')
+          .eq('id', userId)
+          .maybeSingle();
 
-      // 3. Tura shi zuwa ainihin dashboard dinsa bisa ga matsayinsa
-      if (userData.role === 'admin' || userData.role === 'staff') {
-        router.push('/admin/dashboard');
-      } else if (userData.role === 'employer') {
-        router.push('/employer/dashboard');
-      } else {
-        router.push('/candidate/dashboard');
+        if (profileData?.role) {
+          userRole = profileData.role;
+        }
+      }
+
+      if (!userRole) {
+        const { data: userData } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (userData?.role) {
+          userRole = userData.role;
+        }
+      }
+
+      const normalizedRole = (userRole || 'candidate').toLowerCase();
+
+      switch (normalizedRole) {
+        case 'admin':
+        case 'superadmin':
+        case 'staff':
+        case 'officer':
+          router.push('/admin/dashboard');
+          break;
+
+        case 'employer':
+        case 'company':
+        case 'partner':
+          router.push('/employer/dashboard');
+          break;
+
+        case 'candidate':
+        case 'applicant':
+        default:
+          router.push('/candidate/dashboard');
+          break;
       }
     } catch (err) {
       setErrorMsg(err.message || 'Invalid login credentials');
