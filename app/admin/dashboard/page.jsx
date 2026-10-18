@@ -484,38 +484,31 @@ export default function AdminDashboard() {
     }, 2500);
   };
 
-  // Bulletproof Instant Logout Protocol
+  // Native Forced Sign Out Protocol
   const handleSignOut = async () => {
     try {
-      // 1. Goge dukkan cookies da ke dauke da zaman Supabase
-      if (typeof document !== 'undefined') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i];
-          const eqPos = cookie.indexOf('=');
-          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
-        }
-      }
+      // 1. Aika buƙatar fitar da zama a Supabase a fage (background)
+      supabase.auth.signOut().catch(() => {});
 
-      // 2. Share LocalStorage da SessionStorage
+      // 2. Share dukkan LocalStorage da SessionStorage
       if (typeof window !== 'undefined') {
         localStorage.clear();
         sessionStorage.clear();
-      }
 
-      // 3. Tura bukatar fita zuwa Supabase tare da timeout don kada ta makale
-      const signOutPromise = supabase.auth.signOut();
-      const timeoutPromise = new Promise((resolve) => setTimeout(resolve, 600));
-      await Promise.race([signOutPromise, timeoutPromise]);
+        // 3. Share dukkan cookies na Supabase auth tokens
+        document.cookie.split(';').forEach((c) => {
+          document.cookie = c
+            .replace(/^ +/, '')
+            .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+        });
+
+        // 4. Tilasta wa burawzar komawa shafin login kai tsaye
+        window.location.href = '/login';
+      }
     } catch (err) {
-      console.error('Sign out error:', err);
-    } finally {
-      // 4. Tilasta burawzar komawa shafin login kai tsaye
+      console.error('Logout error:', err);
       if (typeof window !== 'undefined') {
-        window.location.replace('/login');
-      } else {
-        router.replace('/login');
+        window.location.href = '/login';
       }
     }
   };
@@ -726,12 +719,12 @@ export default function AdminDashboard() {
 
           {/* Working Real-Live Sign Out Button */}
           <button
-            onClick={handleSignOut}
-            className="w-full py-2.5 px-3 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-500/30 font-bold text-xs rounded-xl transition flex items-center justify-center gap-2"
-          >
-            <span>🚪</span>
-            <span>{t.signOut}</span>
-          </button>
+  type="button"
+  onClick={handleSignOut}
+  className="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition shadow-md cursor-pointer"
+>
+  Sign Out
+</button>
         </div>
       </aside>
 
