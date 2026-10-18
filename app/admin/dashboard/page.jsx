@@ -149,24 +149,33 @@ export default function AdminDashboard() {
 
   const t = dict[lang] || dict.en;
 
-  // Real-life Non-blocking Instant Sign Out
-  const handleSignOut = () => {
+  // Fully working, guaranteed instant sign-out
+  const handleSignOut = async () => {
     try {
-      supabase.auth.signOut().catch(() => {});
+      // 1. Terminate Supabase session actively
+      await supabase.auth.signOut({ scope: 'global' }).catch(() => {});
+    } catch (e) {
+      console.error(e);
+    } finally {
+      // 2. Wipe client cache and tokens
       if (typeof window !== 'undefined') {
-        localStorage.clear();
-        sessionStorage.clear();
-        document.cookie.split(';').forEach((c) => {
-          document.cookie = c
-            .replace(/^ +/, '')
-            .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
-        });
-        window.location.href = '/login';
-      }
-    } catch (err) {
-      console.error('Logout error:', err);
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+        try {
+          localStorage.clear();
+          sessionStorage.clear();
+        } catch (_) {}
+
+        // 3. Clear non-httpOnly auth cookies across domains
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i];
+          const eqPos = cookie.indexOf('=');
+          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+          document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+          document.cookie = `${name}=; Path=/; Domain=${window.location.hostname}; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+        }
+
+        // 4. Hard redirect (bypasses Next.js router cache lock)
+        window.location.replace('/login');
       }
     }
   };
@@ -180,7 +189,7 @@ export default function AdminDashboard() {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        router.push('/login');
+        window.location.replace('/login');
         return;
       }
 
@@ -210,14 +219,14 @@ export default function AdminDashboard() {
       const normalizedRole = (userRole || '').toLowerCase();
       if (normalizedRole !== 'admin' && normalizedRole !== 'superadmin' && normalizedRole !== 'staff') {
         alert('Access Denied: Admins & Staff only.');
-        router.push('/login');
+        window.location.replace('/login');
         return;
       }
 
       await loadDashboardData();
     } catch (err) {
       console.error('Auth error:', err);
-      router.push('/login');
+      window.location.replace('/login');
     } finally {
       setLoading(false);
     }
@@ -566,7 +575,7 @@ export default function AdminDashboard() {
             <button
               type="button"
               onClick={() => setSidebarOpen(false)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
               title="Close Menu"
             >
               ✕
@@ -578,7 +587,7 @@ export default function AdminDashboard() {
             <button
               type="button"
               onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition ${
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition cursor-pointer ${
                 activeTab === 'overview'
                   ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -591,7 +600,7 @@ export default function AdminDashboard() {
             <button
               type="button"
               onClick={() => { setActiveTab('candidates'); setSidebarOpen(false); }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition cursor-pointer ${
                 activeTab === 'candidates'
                   ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -609,7 +618,7 @@ export default function AdminDashboard() {
             <button
               type="button"
               onClick={() => { setActiveTab('employer-requests'); setSidebarOpen(false); }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition cursor-pointer ${
                 activeTab === 'employer-requests'
                   ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -627,7 +636,7 @@ export default function AdminDashboard() {
             <button
               type="button"
               onClick={() => { setActiveTab('finances'); setSidebarOpen(false); }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition cursor-pointer ${
                 activeTab === 'finances'
                   ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -645,7 +654,7 @@ export default function AdminDashboard() {
             <button
               type="button"
               onClick={() => { setActiveTab('post-job'); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition ${
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition cursor-pointer ${
                 activeTab === 'post-job'
                   ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -658,7 +667,7 @@ export default function AdminDashboard() {
             <button
               type="button"
               onClick={() => { setActiveTab('jobs'); setSidebarOpen(false); }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition cursor-pointer ${
                 activeTab === 'jobs'
                   ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -676,7 +685,7 @@ export default function AdminDashboard() {
             <button
               type="button"
               onClick={() => { setActiveTab('staff'); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition ${
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition cursor-pointer ${
                 activeTab === 'staff'
                   ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -696,21 +705,21 @@ export default function AdminDashboard() {
               <button
                 type="button"
                 onClick={() => setLang('en')}
-                className={`px-2 py-1 rounded ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+                className={`px-2 py-1 rounded cursor-pointer ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
               >
                 EN
               </button>
               <button
                 type="button"
                 onClick={() => setLang('ar')}
-                className={`px-2 py-1 rounded ${lang === 'ar' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+                className={`px-2 py-1 rounded cursor-pointer ${lang === 'ar' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
               >
                 العربية
               </button>
               <button
                 type="button"
                 onClick={() => setLang('fr')}
-                className={`px-2 py-1 rounded ${lang === 'fr' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+                className={`px-2 py-1 rounded cursor-pointer ${lang === 'fr' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
               >
                 FR
               </button>
@@ -733,7 +742,6 @@ export default function AdminDashboard() {
         {/* Top Header Bar */}
         <header className="h-16 bg-[#091e32] border-b border-slate-800 px-6 flex items-center justify-between sticky top-0 z-30 print:hidden">
           <div className="flex items-center gap-4">
-            {/* The Trigger Menu Button */}
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
@@ -771,7 +779,7 @@ export default function AdminDashboard() {
             <button
               type="button"
               onClick={handleSignOut}
-              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition shadow-md cursor-pointer"
+              className="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition shadow-md cursor-pointer"
               title="Sign Out of Portal"
             >
               Sign Out
@@ -818,7 +826,7 @@ export default function AdminDashboard() {
                 <div className="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-6">
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="text-sm font-bold text-white">Recent Financial Transactions</h3>
-                    <button type="button" onClick={() => setActiveTab('finances')} className="text-sky-400 text-xs font-semibold hover:underline">
+                    <button type="button" onClick={() => setActiveTab('finances')} className="text-sky-400 text-xs font-semibold hover:underline cursor-pointer">
                       View All Ledger &rarr;
                     </button>
                   </div>
@@ -843,7 +851,7 @@ export default function AdminDashboard() {
                 <div className="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-6">
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="text-sm font-bold text-white">Active Corporate Quotas</h3>
-                    <button type="button" onClick={() => setActiveTab('employer-requests')} className="text-sky-400 text-xs font-semibold hover:underline">
+                    <button type="button" onClick={() => setActiveTab('employer-requests')} className="text-sky-400 text-xs font-semibold hover:underline cursor-pointer">
                       View All Quotas &rarr;
                     </button>
                   </div>
@@ -896,7 +904,7 @@ export default function AdminDashboard() {
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs rounded-xl transition flex items-center gap-2"
+                  className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs rounded-xl transition flex items-center gap-2 cursor-pointer"
                 >
                   <span>🖨️</span>
                   <span>{t.printDossier}</span>
