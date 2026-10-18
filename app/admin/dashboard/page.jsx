@@ -11,22 +11,22 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [lang, setLang] = useState('en');
 
-  // Core Data Collections
+  // Collections
   const [candidates, setCandidates] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [employerRequests, setEmployerRequests] = useState([]);
   const [staffMembers, setStaffMembers] = useState([]);
   const [payments, setPayments] = useState([]);
 
-  // Search & Filter Controls
+  // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  // Contact Modal State
+  // Modal States
   const [contactModalData, setContactModalData] = useState(null);
   const [savingContact, setSavingContact] = useState(false);
 
-  // Job Posting Form State
+  // Forms
   const [jobTitle, setJobTitle] = useState('');
   const [country, setCountry] = useState('');
   const [salaryRange, setSalaryRange] = useState('');
@@ -36,7 +36,6 @@ export default function AdminDashboard() {
   const [postingJob, setPostingJob] = useState(false);
   const [jobFeedback, setJobFeedback] = useState({ type: '', text: '' });
 
-  // Staff Creation Form State
   const [staffEmail, setStaffEmail] = useState('');
   const [staffPassword, setStaffPassword] = useState('');
   const [staffName, setStaffName] = useState('');
@@ -44,7 +43,6 @@ export default function AdminDashboard() {
   const [creatingStaff, setCreatingStaff] = useState(false);
   const [staffFeedback, setStaffFeedback] = useState({ type: '', text: '' });
 
-  // Employer Dispatch Modal State
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [dispatchMessage, setDispatchMessage] = useState('');
   const [dispatchSuccess, setDispatchSuccess] = useState(false);
@@ -151,6 +149,28 @@ export default function AdminDashboard() {
 
   const t = dict[lang] || dict.en;
 
+  // Real-life Non-blocking Instant Sign Out
+  const handleSignOut = () => {
+    try {
+      supabase.auth.signOut().catch(() => {});
+      if (typeof window !== 'undefined') {
+        localStorage.clear();
+        sessionStorage.clear();
+        document.cookie.split(';').forEach((c) => {
+          document.cookie = c
+            .replace(/^ +/, '')
+            .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
+        });
+        window.location.href = '/login';
+      }
+    } catch (err) {
+      console.error('Logout error:', err);
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    }
+  };
+
   useEffect(() => {
     checkAdminAuthAndLoad();
   }, []);
@@ -196,7 +216,7 @@ export default function AdminDashboard() {
 
       await loadDashboardData();
     } catch (err) {
-      console.error('Authentication Error:', err);
+      console.error('Auth error:', err);
       router.push('/login');
     } finally {
       setLoading(false);
@@ -331,9 +351,8 @@ export default function AdminDashboard() {
           }
         ]);
       }
-
     } catch (err) {
-      console.error('Data Loading Notice:', err);
+      console.error('Data loading error:', err);
     }
   };
 
@@ -464,10 +483,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const handlePrintDossier = () => {
-    window.print();
-  };
-
   const openDispatchModal = (request) => {
     setSelectedRequest(request);
     setDispatchSuccess(false);
@@ -484,35 +499,6 @@ export default function AdminDashboard() {
     }, 2500);
   };
 
-  // Native Forced Sign Out Protocol
-  const handleSignOut = async () => {
-    try {
-      // 1. Aika buƙatar fitar da zama a Supabase a fage (background)
-      supabase.auth.signOut().catch(() => {});
-
-      // 2. Share dukkan LocalStorage da SessionStorage
-      if (typeof window !== 'undefined') {
-        localStorage.clear();
-        sessionStorage.clear();
-
-        // 3. Share dukkan cookies na Supabase auth tokens
-        document.cookie.split(';').forEach((c) => {
-          document.cookie = c
-            .replace(/^ +/, '')
-            .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
-        });
-
-        // 4. Tilasta wa burawzar komawa shafin login kai tsaye
-        window.location.href = '/login';
-      }
-    } catch (err) {
-      console.error('Logout error:', err);
-      if (typeof window !== 'undefined') {
-        window.location.href = '/login';
-      }
-    }
-  };
-
   const totalSuccessfulRevenue = payments
     .filter((p) => p.status === 'success')
     .reduce((sum, current) => sum + Number(current.amount || 0), 0);
@@ -521,15 +507,16 @@ export default function AdminDashboard() {
     const matchesFilter =
       statusFilter === 'all' || (cand.verification_status || 'pending').toLowerCase() === statusFilter.toLowerCase();
     const query = searchQuery.toLowerCase();
-    const matchesSearch =
-      (cand.full_name || '').toLowerCase().includes(query) ||
-      (cand.passport_number || '').toLowerCase().includes(query) ||
-      (cand.role || '').toLowerCase().includes(query) ||
-      (cand.target_country || '').toLowerCase().includes(query) ||
-      (cand.residential_address || '').toLowerCase().includes(query) ||
-      (cand.email || '').toLowerCase().includes(query) ||
-      (cand.phone || '').toLowerCase().includes(query);
-    return matchesFilter && matchesSearch;
+    return (
+      matchesFilter &&
+      ((cand.full_name || '').toLowerCase().includes(query) ||
+        (cand.passport_number || '').toLowerCase().includes(query) ||
+        (cand.role || '').toLowerCase().includes(query) ||
+        (cand.target_country || '').toLowerCase().includes(query) ||
+        (cand.residential_address || '').toLowerCase().includes(query) ||
+        (cand.email || '').toLowerCase().includes(query) ||
+        (cand.phone || '').toLowerCase().includes(query))
+    );
   });
 
   if (loading) {
@@ -537,7 +524,9 @@ export default function AdminDashboard() {
       <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white font-sans">
         <div className="text-center space-y-4">
           <div className="w-12 h-12 border-4 border-sky-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-sm font-semibold tracking-wider uppercase text-slate-300">Initializing AYAX Global Enterprise Console...</p>
+          <p className="text-sm font-semibold tracking-wider uppercase text-slate-300">
+            Initializing AYAX Global Enterprise Console...
+          </p>
         </div>
       </div>
     );
@@ -550,11 +539,11 @@ export default function AdminDashboard() {
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 transition-opacity"
+          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-40 transition-opacity"
         ></div>
       )}
 
-      {/* 2. Collapsible Drawer Sidebar (Opens only via Menu Button) */}
+      {/* 2. Slide Drawer Sidebar (Opens only via Menu Button) */}
       <aside
         className={`fixed top-0 bottom-0 z-50 w-72 bg-[#071626] border-r border-slate-800 flex flex-col justify-between shadow-2xl transition-transform duration-300 ease-in-out select-none print:hidden ${
           sidebarOpen
@@ -575,6 +564,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setSidebarOpen(false)}
               className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
               title="Close Menu"
@@ -583,9 +573,10 @@ export default function AdminDashboard() {
             </button>
           </div>
 
-          {/* Navigation Links */}
+          {/* Navigation Links inside Drawer */}
           <nav className="p-3 space-y-1.5 text-xs font-semibold">
             <button
+              type="button"
               onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition ${
                 activeTab === 'overview'
@@ -598,6 +589,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
+              type="button"
               onClick={() => { setActiveTab('candidates'); setSidebarOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition ${
                 activeTab === 'candidates'
@@ -615,6 +607,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
+              type="button"
               onClick={() => { setActiveTab('employer-requests'); setSidebarOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition ${
                 activeTab === 'employer-requests'
@@ -632,6 +625,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
+              type="button"
               onClick={() => { setActiveTab('finances'); setSidebarOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition ${
                 activeTab === 'finances'
@@ -649,6 +643,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
+              type="button"
               onClick={() => { setActiveTab('post-job'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition ${
                 activeTab === 'post-job'
@@ -661,6 +656,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
+              type="button"
               onClick={() => { setActiveTab('jobs'); setSidebarOpen(false); }}
               className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition ${
                 activeTab === 'jobs'
@@ -678,6 +674,7 @@ export default function AdminDashboard() {
             </button>
 
             <button
+              type="button"
               onClick={() => { setActiveTab('staff'); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition ${
                 activeTab === 'staff'
@@ -697,18 +694,21 @@ export default function AdminDashboard() {
             <span className="text-slate-400 font-semibold">Language</span>
             <div className="flex gap-1 font-bold">
               <button
+                type="button"
                 onClick={() => setLang('en')}
                 className={`px-2 py-1 rounded ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
               >
                 EN
               </button>
               <button
+                type="button"
                 onClick={() => setLang('ar')}
                 className={`px-2 py-1 rounded ${lang === 'ar' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
               >
                 العربية
               </button>
               <button
+                type="button"
                 onClick={() => setLang('fr')}
                 className={`px-2 py-1 rounded ${lang === 'fr' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
               >
@@ -717,30 +717,31 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Working Real-Live Sign Out Button */}
           <button
-  type="button"
-  onClick={handleSignOut}
-  className="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition shadow-md cursor-pointer"
->
-  Sign Out
-</button>
+            type="button"
+            onClick={handleSignOut}
+            className="w-full py-2.5 px-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
+          >
+            <span>🚪</span>
+            <span>{t.signOut}</span>
+          </button>
         </div>
       </aside>
 
-      {/* 3. Full-Width Main Executive Work Area */}
+      {/* 3. Main Full-Width Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        {/* Top Header Bar with Menu Button */}
+        {/* Top Header Bar */}
         <header className="h-16 bg-[#091e32] border-b border-slate-800 px-6 flex items-center justify-between sticky top-0 z-30 print:hidden">
           <div className="flex items-center gap-4">
             {/* The Trigger Menu Button */}
             <button
+              type="button"
               onClick={() => setSidebarOpen(true)}
-              className="p-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-slate-700 transition flex items-center gap-2 text-xs font-bold"
+              className="p-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl border border-slate-700 transition flex items-center gap-2 text-xs font-bold cursor-pointer"
               title="Open Navigation Menu"
             >
               <span className="text-base leading-none">☰</span>
-              <span className="hidden sm:inline">Menu</span>
+              <span>Menu</span>
             </button>
 
             <h2 className="text-sm font-bold tracking-wide uppercase text-slate-200 truncate">
@@ -766,10 +767,11 @@ export default function AdminDashboard() {
               <span>↗</span>
             </a>
 
-            {/* Direct Quick Logout Button on Top Nav */}
+            {/* Direct Instant Logout on Header */}
             <button
+              type="button"
               onClick={handleSignOut}
-              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition shadow-sm"
+              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition shadow-md cursor-pointer"
               title="Sign Out of Portal"
             >
               Sign Out
@@ -811,12 +813,12 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Overview Sub-Sections */}
+              {/* Sub-Panels */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-6">
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="text-sm font-bold text-white">Recent Financial Transactions</h3>
-                    <button onClick={() => setActiveTab('finances')} className="text-sky-400 text-xs font-semibold hover:underline">
+                    <button type="button" onClick={() => setActiveTab('finances')} className="text-sky-400 text-xs font-semibold hover:underline">
                       View All Ledger &rarr;
                     </button>
                   </div>
@@ -841,7 +843,7 @@ export default function AdminDashboard() {
                 <div className="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-6">
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="text-sm font-bold text-white">Active Corporate Quotas</h3>
-                    <button onClick={() => setActiveTab('employer-requests')} className="text-sky-400 text-xs font-semibold hover:underline">
+                    <button type="button" onClick={() => setActiveTab('employer-requests')} className="text-sky-400 text-xs font-semibold hover:underline">
                       View All Quotas &rarr;
                     </button>
                   </div>
@@ -892,7 +894,8 @@ export default function AdminDashboard() {
                 </div>
 
                 <button
-                  onClick={handlePrintDossier}
+                  type="button"
+                  onClick={() => window.print()}
                   className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs rounded-xl transition flex items-center gap-2"
                 >
                   <span>🖨️</span>
@@ -900,13 +903,13 @@ export default function AdminDashboard() {
                 </button>
               </div>
 
-              {/* Candidates Table */}
+              {/* Table */}
               <div className="bg-slate-800/90 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
                       <tr className="bg-slate-900/90 text-slate-400 border-b border-slate-700 font-bold uppercase text-[10px] tracking-wider">
-                        <th className="p-4">Applicant & Contact Info</th>
+                        <th className="p-4">Applicant Profile</th>
                         <th className="p-4">Contact Address Dossier</th>
                         <th className="p-4">Passport & Credentials</th>
                         <th className="p-4">Trade & Target Country</th>
@@ -939,8 +942,9 @@ export default function AdminDashboard() {
                                 {cand.city || 'Kano'}, {cand.state || 'Kano State'}, {cand.country || 'Nigeria'}
                               </div>
                               <button
+                                type="button"
                                 onClick={() => setContactModalData({ ...cand, type: 'candidate' })}
-                                className="mt-1.5 text-[10px] text-sky-400 hover:underline font-bold"
+                                className="mt-1.5 text-[10px] text-sky-400 hover:underline font-bold cursor-pointer"
                               >
                                 ✏️ Edit Address / Contact
                               </button>
@@ -1113,14 +1117,16 @@ export default function AdminDashboard() {
 
                       <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
                         <button
+                          type="button"
                           onClick={() => setContactModalData({ ...req, type: 'employer' })}
-                          className="text-[11px] text-sky-400 hover:underline font-bold"
+                          className="text-[11px] text-sky-400 hover:underline font-bold cursor-pointer"
                         >
                           ✏️ Update Address
                         </button>
                         <button
+                          type="button"
                           onClick={() => openDispatchModal(req)}
-                          className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition shadow-sm"
+                          className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition shadow-sm cursor-pointer"
                         >
                           Dispatch Candidates &rarr;
                         </button>
@@ -1162,7 +1168,7 @@ export default function AdminDashboard() {
               <div className="bg-slate-800/90 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
                 <div className="p-4 border-b border-slate-700 flex justify-between items-center">
                   <h3 className="text-sm font-bold text-white">Live Payment Transactions & Ledger Log</h3>
-                  <button onClick={handlePrintDossier} className="text-xs text-sky-400 font-bold hover:underline">
+                  <button type="button" onClick={() => window.print()} className="text-xs text-sky-400 font-bold hover:underline cursor-pointer">
                     🖨️ Export / Print Ledger
                   </button>
                 </div>
@@ -1312,7 +1318,7 @@ export default function AdminDashboard() {
                 <button
                   type="submit"
                   disabled={postingJob}
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow-lg disabled:bg-slate-700"
+                  className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow-lg disabled:bg-slate-700 cursor-pointer"
                 >
                   {postingJob ? 'Registering Vacancy...' : 'Publish Official Vacancy to Portal'}
                 </button>
@@ -1424,7 +1430,7 @@ export default function AdminDashboard() {
                   <button
                     type="submit"
                     disabled={creatingStaff}
-                    className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition disabled:bg-slate-700"
+                    className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition disabled:bg-slate-700 cursor-pointer"
                   >
                     {creatingStaff ? 'Creating Staff Member...' : 'Register Authorized Staff Member'}
                   </button>
@@ -1464,7 +1470,7 @@ export default function AdminDashboard() {
                   {contactModalData.type === 'candidate' ? contactModalData.full_name : contactModalData.company_name}
                 </span>
               </div>
-              <button onClick={() => setContactModalData(null)} className="text-slate-400 hover:text-white font-bold text-base">
+              <button type="button" onClick={() => setContactModalData(null)} className="text-slate-400 hover:text-white font-bold text-base cursor-pointer">
                 ✕
               </button>
             </div>
@@ -1573,14 +1579,14 @@ export default function AdminDashboard() {
                 <button
                   type="button"
                   onClick={() => setContactModalData(null)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition"
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={savingContact}
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition shadow-lg"
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition shadow-lg cursor-pointer"
                 >
                   {savingContact ? 'Saving Record...' : 'Save & Update Dossier'}
                 </button>
@@ -1600,8 +1606,9 @@ export default function AdminDashboard() {
                 <span className="text-[11px] text-sky-400 font-semibold">{selectedRequest.company_name} ({selectedRequest.country})</span>
               </div>
               <button
+                type="button"
                 onClick={() => setSelectedRequest(null)}
-                className="text-slate-400 hover:text-white font-bold text-base"
+                className="text-slate-400 hover:text-white font-bold text-base cursor-pointer"
               >
                 ✕
               </button>
@@ -1645,14 +1652,16 @@ export default function AdminDashboard() {
 
                 <div className="flex justify-end gap-3 pt-2">
                   <button
+                    type="button"
                     onClick={() => setSelectedRequest(null)}
-                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition"
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
+                    type="button"
                     onClick={handleSendDispatch}
-                    className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition shadow-lg"
+                    className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition shadow-lg cursor-pointer"
                   >
                     Confirm & Send Notification to Employer
                   </button>
