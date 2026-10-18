@@ -381,13 +381,15 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* First Video */}
             <div className="bg-slate-800/80 rounded-2xl overflow-hidden border border-slate-700 shadow-xl">
               <div className="aspect-video w-full bg-black relative">
                 <iframe 
                   className="w-full h-full"
-                  src="https://youtu.be/QRHrHFbBiT4?list=PLebew5L43Bpg&t=4" 
+                  src="https://www.youtube-nocookie.com/embed/QRHrHFbBiT4?start=4" 
                   title="AYAX Candidate Orientation Video"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
                   allowFullScreen
                 ></iframe>
               </div>
@@ -398,13 +400,15 @@ export default function HomePage() {
               </div>
             </div>
 
+            {/* Second Video */}
             <div className="bg-slate-800/80 rounded-2xl overflow-hidden border border-slate-700 shadow-xl">
               <div className="aspect-video w-full bg-black relative">
                 <iframe 
                   className="w-full h-full"
-                  src="https://youtu.be/DHS-XsZhoJQ?t=84" 
+                  src="https://www.youtube-nocookie.com/embed/DHS-XsZhoJQ?start=84" 
                   title="Trade Skill Evaluation Desk"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
                   allowFullScreen
                 ></iframe>
               </div>
