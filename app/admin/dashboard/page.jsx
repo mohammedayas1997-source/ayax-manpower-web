@@ -151,23 +151,25 @@ export default function AdminDashboard() {
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut({ scope: 'global' }).catch(() => {});
+      // 1. Kashe zaman Supabase
+      await supabase.auth.signOut({ scope: 'local' });
     } catch (e) {
       console.error(e);
     } finally {
+      // 2. Share kowane irin ma'aji na burawza
       if (typeof window !== 'undefined') {
-        try {
-          localStorage.clear();
-          sessionStorage.clear();
-        } catch (_) {}
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i];
-          const eqPos = cookie.indexOf('=');
-          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-          document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
-        }
-        window.location.replace('/login');
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // 3. Tilasta goge cookies
+        document.cookie.split(';').forEach((c) => {
+          document.cookie = c
+            .replace(/^ +/, '')
+            .replace(/=.*/, '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/');
+        });
+
+        // 4. Mayar da mutum shafin login tare da hard refresh
+        window.location.href = '/login?logout=true';
       }
     }
   };
