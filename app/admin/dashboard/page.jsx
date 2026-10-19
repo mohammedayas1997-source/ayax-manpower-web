@@ -588,14 +588,18 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="w-full py-3 px-3 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
-          >
-            <span>🚪</span>
-            <span>{t.signOut}</span>
-          </button>
+          <a
+  href="/api/auth/logout"
+  onClick={() => {
+    if (typeof window !== 'undefined') {
+      localStorage.clear();
+      sessionStorage.clear();
+    }
+  }}
+  className="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl transition shadow-md inline-block text-center cursor-pointer"
+>
+  Sign Out
+</a>
         </div>
       </aside>
 
