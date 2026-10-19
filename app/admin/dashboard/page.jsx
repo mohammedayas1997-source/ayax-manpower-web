@@ -11,22 +11,20 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [lang, setLang] = useState('en');
 
-  // Collections
+  // Core Data Collections
   const [candidates, setCandidates] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [employerRequests, setEmployerRequests] = useState([]);
   const [staffMembers, setStaffMembers] = useState([]);
-  const [payments, setPayments] = useState([]);
 
-  // Search & Filter
+  // Filter & Search Controls
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  // Modal States
-  const [contactModalData, setContactModalData] = useState(null);
-  const [savingContact, setSavingContact] = useState(false);
+  // Selected Candidate Modal
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
 
-  // Forms
+  // Job Posting Form State
   const [jobTitle, setJobTitle] = useState('');
   const [country, setCountry] = useState('');
   const [salaryRange, setSalaryRange] = useState('');
@@ -36,6 +34,7 @@ export default function AdminDashboard() {
   const [postingJob, setPostingJob] = useState(false);
   const [jobFeedback, setJobFeedback] = useState({ type: '', text: '' });
 
+  // New Staff Creation Form State
   const [staffEmail, setStaffEmail] = useState('');
   const [staffPassword, setStaffPassword] = useState('');
   const [staffName, setStaffName] = useState('');
@@ -43,6 +42,7 @@ export default function AdminDashboard() {
   const [creatingStaff, setCreatingStaff] = useState(false);
   const [staffFeedback, setStaffFeedback] = useState({ type: '', text: '' });
 
+  // Employer Dispatch Modal State
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [dispatchMessage, setDispatchMessage] = useState('');
   const [dispatchSuccess, setDispatchSuccess] = useState(false);
@@ -55,24 +55,23 @@ export default function AdminDashboard() {
       overview: 'Overview & Analytics',
       candidates: 'Applicant Pipeline',
       employerRequests: 'Corporate Quota Requests',
-      finances: 'Financial Ledger & Payments',
       postJob: 'Publish Vacancy',
       jobs: 'Active Corridor Vacancies',
       staff: 'Staff & Role Management',
       signOut: 'Sign Out',
-      searchPlaceholder: 'Search name, passport, phone, email, country...',
+      searchPlaceholder: 'Search by full name, passport, role, or country...',
       statusAll: 'All Statuses',
       verified: 'Verified',
       pending: 'Under Review',
       deployed: 'Deployed Overseas',
       rejected: 'Audit Failed',
-      printDossier: 'Print Dossier',
-      sendEmail: 'Official Email',
+      printDossier: 'Print Candidate Dossier',
+      sendEmail: 'Send Official Email',
       whatsapp: 'WhatsApp Desk',
-      call: 'Direct Call',
-      editAddress: 'Contact & Address Dossier',
-      totalRevenue: 'Total Registration Revenue',
-      successfulTransactions: 'Settled Transactions',
+      call: 'Direct Telephone',
+      downloadCv: 'Download CV Document',
+      viewPassport: 'Inspect Passport Data Page',
+      viewPhoto: 'Passport Photograph',
       totalApplicants: 'Total Registered Talents',
       pendingVerification: 'Pending Compliance Review',
       verifiedReady: 'Verified & Deployment Ready',
@@ -87,24 +86,23 @@ export default function AdminDashboard() {
       overview: 'نظرة عامة والتحليلات',
       candidates: 'قاعدة بيانات المرشحين',
       employerRequests: 'طلبات الشركات وتخصيص الكوادر',
-      finances: 'المالية وسجل المدفوعات',
       postJob: 'نشر وظيفة شاغرة',
       jobs: 'عقود التوظيف النشطة',
       staff: 'إدارة الموظفين والصلاحيات',
       signOut: 'تسجيل الخروج',
-      searchPlaceholder: 'البحث بالاسم، الجواز، الهاتف، الدولة...',
+      searchPlaceholder: 'البحث بالاسم، الجواز، التخصص أو الدولة...',
       statusAll: 'جميع الحالات',
       verified: 'تم التحقق والاعتماد',
       pending: 'قيد التدقيق والتقييم',
       deployed: 'تم الإيفاد الخارجي',
       rejected: 'مرفوض لعدم استيفاء الشروط',
-      printDossier: 'طباعة الملف',
-      sendEmail: 'بريد رسمي',
+      printDossier: 'طباعة ملف المرشح',
+      sendEmail: 'إرسال بريد رسمي',
       whatsapp: 'واتساب مباشر',
       call: 'اتصال هاتفي',
-      editAddress: 'العنوان وبيانات الاتصال',
-      totalRevenue: 'إجمالي الإيرادات المحصلة',
-      successfulTransactions: 'العمليات المكتملة',
+      downloadCv: 'تحميل السيرة الذاتية',
+      viewPassport: 'معاينة جواز السفر',
+      viewPhoto: 'الصورة الشخصية',
       totalApplicants: 'إجمالي المتقدمين',
       pendingVerification: 'طلبات قيد المراجعة',
       verifiedReady: 'كوادر معتمدة جاهزة للإيفاد',
@@ -119,24 +117,23 @@ export default function AdminDashboard() {
       overview: 'Vue Globale et Analyses',
       candidates: 'Vivier des Candidats',
       employerRequests: 'Demandes de Quotas Entreprises',
-      finances: 'Comptabilité et Règlements',
       postJob: 'Publier une Offre',
       jobs: 'Postes Actifs en Corridors',
       staff: 'Gestion du Personnel et Rôles',
       signOut: 'Déconnexion',
-      searchPlaceholder: 'Rechercher par nom, passeport, téléphone...',
+      searchPlaceholder: 'Rechercher par nom, passeport, métier ou pays...',
       statusAll: 'Tous les statuts',
       verified: 'Vérifié & Conforme',
       pending: 'En Cours d’Audit',
       deployed: 'Déployé à l’Étranger',
       rejected: 'Non Conforme',
-      printDossier: 'Imprimer Dossier',
-      sendEmail: 'Email Officiel',
+      printDossier: 'Imprimer Dossier Candidat',
+      sendEmail: 'Envoyer Email Officiel',
       whatsapp: 'Contact WhatsApp',
-      call: 'Appel Direct',
-      editAddress: 'Dossier Adresse et Contact',
-      totalRevenue: 'Revenus d’Enregistrement Encaissés',
-      successfulTransactions: 'Transactions Confirmées',
+      call: 'Appel Téléphonique',
+      downloadCv: 'Télécharger le CV',
+      viewPassport: 'Consulter Page Passeport',
+      viewPhoto: 'Photo d’Identité',
       totalApplicants: 'Total Candidats Enregistrés',
       pendingVerification: 'En Attente de Vérification',
       verifiedReady: 'Certifiés Prêts au Déploiement',
@@ -149,27 +146,23 @@ export default function AdminDashboard() {
 
   const t = dict[lang] || dict.en;
 
-  const handleSignOut = async () => {
+  // Ainihin Logout da ke Fita Nan Take
+  const handleSignOut = () => {
     try {
-      // 1. Kashe zaman Supabase
-      await supabase.auth.signOut({ scope: 'local' });
-    } catch (e) {
-      console.error(e);
-    } finally {
-      // 2. Share kowane irin ma'aji na burawza
+      supabase.auth.signOut().catch(() => {});
       if (typeof window !== 'undefined') {
         localStorage.clear();
         sessionStorage.clear();
-
-        // 3. Tilasta goge cookies
         document.cookie.split(';').forEach((c) => {
           document.cookie = c
             .replace(/^ +/, '')
-            .replace(/=.*/, '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/');
+            .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
         });
-
-        // 4. Mayar da mutum shafin login tare da hard refresh
-        window.location.href = '/login?logout=true';
+        window.location.replace('/login');
+      }
+    } catch (err) {
+      if (typeof window !== 'undefined') {
+        window.location.replace('/login');
       }
     }
   };
@@ -219,7 +212,7 @@ export default function AdminDashboard() {
 
       await loadDashboardData();
     } catch (err) {
-      console.error('Auth error:', err);
+      console.error('Authentication Error:', err);
       window.location.replace('/login');
     } finally {
       setLoading(false);
@@ -248,14 +241,10 @@ export default function AdminDashboard() {
           id: 'REQ-101',
           company_name: 'Al-Bawani Logistics Group Ltd',
           country: 'Saudi Arabia',
-          city: 'Riyadh',
-          office_address: 'King Fahd Road, Al Olaya District, Building 45, Level 8, Riyadh, KSA',
-          commercial_rc: 'CR-1010482910',
           trade_requested: 'Heavy Commercial Transport Drivers',
           quota_number: 25,
-          contact_person: 'Sheikh Tariq Al-Mansoor (Procurement Director)',
           contact_email: 'procurement@albawanigroup.sa',
-          phone: '+966501234567',
+          phone: '+966 50 123 4567',
           status: 'Pending Audit',
           created_at: '2026-10-15',
         },
@@ -263,29 +252,21 @@ export default function AdminDashboard() {
           id: 'REQ-102',
           company_name: 'Apex Healthcare Services UK',
           country: 'United Kingdom',
-          city: 'Birmingham',
-          office_address: 'Victoria Square, Suite 402, Birmingham, B1 1BD, UK',
-          commercial_rc: 'UK-CO-09842134',
           trade_requested: 'Healthcare & Clinical Support Assistants',
           quota_number: 10,
-          contact_person: 'Dr. Eleanor Davies (Talent Acquisition Lead)',
           contact_email: 'talent@apexhealthcare.co.uk',
-          phone: '+442079460912',
+          phone: '+44 20 7946 0912',
           status: 'Under Verification',
           created_at: '2026-10-16',
         },
         {
           id: 'REQ-103',
-          company_name: 'Gulf PetroTech Engineering LLC',
+          company_name: 'Gulf PetroTech Engineering',
           country: 'United Arab Emirates',
-          city: 'Abu Dhabi',
-          office_address: 'Mussafah Industrial Area, Sector MW-4, Plot 12, Abu Dhabi, UAE',
-          commercial_rc: 'CN-1148293',
           trade_requested: '6G Certified Pipe Welders & Fabricators',
           quota_number: 15,
-          contact_person: 'Engr. Rashid Al-Kaabi',
           contact_email: 'recruitment@gulfpetrotech.ae',
-          phone: '+97142345678',
+          phone: '+971 4 234 5678',
           status: 'Approved Roster Dispatched',
           created_at: '2026-10-17',
         }
@@ -298,64 +279,8 @@ export default function AdminDashboard() {
         .or('role.eq.staff,role.eq.admin,role.eq.superadmin');
 
       if (staffData) setStaffMembers(staffData);
-
-      const { data: paymentsData, error: payError } = await supabase
-        .from('payments')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (!payError && paymentsData && paymentsData.length > 0) {
-        setPayments(paymentsData);
-      } else {
-        setPayments([
-          {
-            id: 'TXN-90214',
-            reference: 'AYX-PAY-84920194',
-            candidate_name: 'Ibrahim Sani',
-            candidate_email: 'ibrahim.sani@gmail.com',
-            amount: 15000,
-            currency: 'NGN',
-            payment_channel: 'Paystack Card Transfer',
-            status: 'success',
-            created_at: '2026-10-17 09:30 AM',
-          },
-          {
-            id: 'TXN-90215',
-            reference: 'AYX-PAY-77382910',
-            candidate_name: 'Fatima Zahra Abdullahi',
-            candidate_email: 'fatima.zahra@gmail.com',
-            amount: 25000,
-            currency: 'NGN',
-            payment_channel: 'Paystack Direct Bank',
-            status: 'success',
-            created_at: '2026-10-17 11:15 AM',
-          },
-          {
-            id: 'TXN-90216',
-            reference: 'AYX-PAY-62184923',
-            candidate_name: 'Mustapha Bello',
-            candidate_email: 'mustapha.bello@gmail.com',
-            amount: 15000,
-            currency: 'NGN',
-            payment_channel: 'Paystack USSD',
-            status: 'success',
-            created_at: '2026-10-18 08:45 AM',
-          },
-          {
-            id: 'TXN-90217',
-            reference: 'AYX-PAY-11029348',
-            candidate_name: 'Aliyu Danladi',
-            candidate_email: 'aliyu.danladi@gmail.com',
-            amount: 20000,
-            currency: 'NGN',
-            payment_channel: 'Paystack Card Transfer',
-            status: 'pending',
-            created_at: '2026-10-18 11:20 AM',
-          }
-        ]);
-      }
     } catch (err) {
-      console.error('Data loading error:', err);
+      console.error('Data Loading Notice:', err);
     }
   };
 
@@ -370,44 +295,11 @@ export default function AdminDashboard() {
       setCandidates((prev) =>
         prev.map((c) => (c.id === candidateId ? { ...c, verification_status: newStatus } : c))
       );
+      if (selectedCandidate && selectedCandidate.id === candidateId) {
+        setSelectedCandidate((prev) => ({ ...prev, verification_status: newStatus }));
+      }
     } catch (err) {
       alert('Error updating status: ' + err.message);
-    }
-  };
-
-  const handleSaveContactDossier = async (e) => {
-    e.preventDefault();
-    setSavingContact(true);
-    try {
-      if (contactModalData.type === 'candidate') {
-        const { error } = await supabase
-          .from('candidate_profiles')
-          .update({
-            full_name: contactModalData.full_name,
-            phone: contactModalData.phone,
-            email: contactModalData.email,
-            residential_address: contactModalData.residential_address,
-            city: contactModalData.city,
-            state: contactModalData.state,
-            country: contactModalData.country,
-          })
-          .eq('id', contactModalData.id);
-
-        if (error) throw error;
-
-        setCandidates((prev) =>
-          prev.map((c) => (c.id === contactModalData.id ? { ...c, ...contactModalData } : c))
-        );
-      } else {
-        setEmployerRequests((prev) =>
-          prev.map((r) => (r.id === contactModalData.id ? { ...r, ...contactModalData } : r))
-        );
-      }
-      setContactModalData(null);
-    } catch (err) {
-      alert('Error updating address: ' + err.message);
-    } finally {
-      setSavingContact(false);
     }
   };
 
@@ -490,7 +382,7 @@ export default function AdminDashboard() {
     setSelectedRequest(request);
     setDispatchSuccess(false);
     setDispatchMessage(
-      `Dear ${request.company_name} Executive Board,\n\nAYAX Global Manpower Recruitment has finalized credential and biometric evaluation for your requisition (${request.quota_number} Workforce Slots - ${request.trade_requested}).\n\nOfficial Candidate Evaluation Dossiers have been verified and approved by the Kano Bureau.\n\nCorporate Correspondence Forwarded to:\n${request.contact_person}\nHeadquarters: ${request.office_address}\n\nBest regards,\nAYAX Global Operations Bureau`
+      `Dear ${request.company_name} Technical HR,\n\nAYAX Global Manpower has completed credential and trade compliance verification for your requested quota (${request.quota_number} Positions - ${request.trade_requested}).\n\nThe most qualified and certified personnel have been selected based on trade exam scores and international biometric clearance.\n\nPlease find the attached official deployment roster.\n\nBest regards,\nAYAX Global Operations Bureau`
     );
   };
 
@@ -502,10 +394,6 @@ export default function AdminDashboard() {
     }, 2500);
   };
 
-  const totalSuccessfulRevenue = payments
-    .filter((p) => p.status === 'success')
-    .reduce((sum, current) => sum + Number(current.amount || 0), 0);
-
   const filteredCandidates = candidates.filter((cand) => {
     const matchesFilter =
       statusFilter === 'all' || (cand.verification_status || 'pending').toLowerCase() === statusFilter.toLowerCase();
@@ -516,9 +404,7 @@ export default function AdminDashboard() {
         (cand.passport_number || '').toLowerCase().includes(query) ||
         (cand.role || '').toLowerCase().includes(query) ||
         (cand.target_country || '').toLowerCase().includes(query) ||
-        (cand.residential_address || '').toLowerCase().includes(query) ||
-        (cand.email || '').toLowerCase().includes(query) ||
-        (cand.phone || '').toLowerCase().includes(query))
+        (cand.email || '').toLowerCase().includes(query))
     );
   });
 
@@ -538,7 +424,7 @@ export default function AdminDashboard() {
   return (
     <div className={`min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans ${lang === 'ar' ? 'rtl' : 'ltr'}`}>
       
-      {/* 1. Backdrop Overlay when Sidebar is Open */}
+      {/* 1. Backdrop Overlay idan an bude Menu */}
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
@@ -546,7 +432,7 @@ export default function AdminDashboard() {
         ></div>
       )}
 
-      {/* 2. Slide Drawer Sidebar for All Devices */}
+      {/* 2. Drawer Sidebar mai buɗewa ta Menu */}
       <aside
         className={`fixed top-0 bottom-0 z-50 w-72 sm:w-80 bg-[#071626] border-r border-slate-800 flex flex-col justify-between shadow-2xl transition-transform duration-300 ease-in-out select-none print:hidden ${
           sidebarOpen
@@ -557,7 +443,7 @@ export default function AdminDashboard() {
         } ${lang === 'ar' ? 'right-0' : 'left-0'}`}
       >
         <div className="overflow-y-auto">
-          {/* Brand Header with Close Button */}
+          {/* Logo Brand tare da Maɓallin Kullewa */}
           <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img src="/logo.png" alt="AYAX Global" className="h-8 sm:h-9 w-auto bg-white p-1 rounded-md" />
@@ -576,7 +462,7 @@ export default function AdminDashboard() {
             </button>
           </div>
 
-          {/* Navigation Links inside Drawer */}
+          {/* Navigation Links a Cikin Drawer */}
           <nav className="p-3 space-y-1.5 text-xs font-semibold">
             <button
               type="button"
@@ -624,24 +510,6 @@ export default function AdminDashboard() {
               </div>
               <span className="bg-amber-500/20 text-amber-400 text-[10px] px-2 py-0.5 rounded-full font-bold">
                 {employerRequests.length}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => { setActiveTab('finances'); setSidebarOpen(false); }}
-              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl transition cursor-pointer ${
-                activeTab === 'finances'
-                  ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-600/30'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-sm">💳</span>
-                <span>{t.finances}</span>
-              </div>
-              <span className="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                ₦{totalSuccessfulRevenue.toLocaleString()}
               </span>
             </button>
 
@@ -746,29 +614,23 @@ export default function AdminDashboard() {
               <span className="hidden sm:inline">Menu</span>
             </button>
 
-            <h2 className="text-xs sm:text-sm font-bold tracking-wide uppercase text-slate-200 truncate max-w-[120px] xs:max-w-[180px] sm:max-w-none">
+            <h2 className="text-xs sm:text-sm font-bold tracking-wide uppercase text-slate-200 truncate">
               {activeTab.replace('-', ' ')}
             </h2>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4">
-            <div className="hidden md:flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-xl">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="text-[11px] font-bold text-emerald-400 font-mono">
-                Revenue: ₦{totalSuccessfulRevenue.toLocaleString()}
-              </span>
-            </div>
-
+          <div className="flex items-center gap-3">
             <a
               href="/"
               target="_blank"
               rel="noreferrer"
-              className="hidden xs:flex text-xs font-semibold text-slate-400 hover:text-white transition items-center gap-1.5"
+              className="hidden sm:flex text-xs font-semibold text-slate-400 hover:text-white transition items-center gap-1.5"
             >
               <span>Portal Front</span>
               <span>↗</span>
             </a>
 
+            {/* Direct Instant Logout a Saman Header */}
             <button
               type="button"
               onClick={handleSignOut}
@@ -786,7 +648,6 @@ export default function AdminDashboard() {
           {/* TAB 1: OVERVIEW METRICS */}
           {activeTab === 'overview' && (
             <div className="space-y-4 sm:space-y-6">
-              {/* Responsive Metrics: 1 col on mobile, 2 on tablet, 4 on desktop */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <div className="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-lg">
                   <span className="text-[10px] sm:text-[11px] font-bold uppercase text-slate-400 tracking-wider block">{t.totalApplicants}</span>
@@ -794,86 +655,67 @@ export default function AdminDashboard() {
                   <span className="text-[11px] sm:text-xs text-sky-400 font-semibold mt-1 inline-block">Registered in Global Talent Pool</span>
                 </div>
 
-                <div className="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-lg">
-                  <span className="text-[10px] sm:text-[11px] font-bold uppercase text-emerald-400 tracking-wider block">{t.totalRevenue}</span>
-                  <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400 mt-1.5 sm:mt-2">₦{totalSuccessfulRevenue.toLocaleString()}</div>
-                  <span className="text-[11px] sm:text-xs text-emerald-400/80 font-semibold mt-1 inline-block">Settled Paystack Gateway Transactions</span>
-                </div>
-
-                <div className="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-lg">
+                <div className="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
                   <span className="text-[10px] sm:text-[11px] font-bold uppercase text-amber-400 tracking-wider block">{t.pendingVerification}</span>
                   <div className="text-2xl sm:text-3xl font-extrabold text-amber-400 mt-1.5 sm:mt-2">
                     {candidates.filter((c) => !c.verification_status || c.verification_status === 'pending').length}
                   </div>
-                  <span className="text-[11px] sm:text-xs text-slate-400 mt-1 inline-block">Awaiting Address & Biometric Audit</span>
+                  <span className="text-[11px] sm:text-xs text-slate-400 mt-1 inline-block">Awaiting Document Clearance</span>
                 </div>
 
-                <div className="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-lg">
+                <div className="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase text-emerald-400 tracking-wider block">{t.verifiedReady}</span>
+                  <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400 mt-1.5 sm:mt-2">
+                    {candidates.filter((c) => c.verification_status === 'verified').length}
+                  </div>
+                  <span className="text-[11px] sm:text-xs text-emerald-400/80 font-semibold mt-1 inline-block">Ready for Deployment</span>
+                </div>
+
+                <div className="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
                   <span className="text-[10px] sm:text-[11px] font-bold uppercase text-sky-400 tracking-wider block">{t.corporateQuotas}</span>
                   <div className="text-2xl sm:text-3xl font-extrabold text-sky-400 mt-1.5 sm:mt-2">{employerRequests.length}</div>
-                  <span className="text-[11px] sm:text-xs text-slate-400 mt-1 inline-block">Corporate Quota Corridors</span>
+                  <span className="text-[11px] sm:text-xs text-slate-400 mt-1 inline-block">Active Corridors</span>
                 </div>
               </div>
 
-              {/* Responsive Sub-Panels: 1 col on mobile/tablet, 2 on desktop */}
+              {/* Sub Panels */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 <div className="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 sm:p-6">
-                  <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-xs sm:text-sm font-bold text-white">Recent Financial Transactions</h3>
-                    <button type="button" onClick={() => setActiveTab('finances')} className="text-sky-400 text-xs font-semibold hover:underline cursor-pointer">
-                      View All &rarr;
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    {payments.slice(0, 4).map((p) => (
-                      <div key={p.id} className="bg-slate-900/80 border border-slate-700/60 p-3 rounded-xl flex items-center justify-between text-xs">
-                        <div className="min-w-0 pr-2">
-                          <div className="font-bold text-white truncate">{p.candidate_name}</div>
-                          <div className="text-[10px] sm:text-[11px] text-slate-400 font-mono truncate">{p.reference}</div>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <div className="font-bold text-emerald-400 font-mono">₦{Number(p.amount).toLocaleString()}</div>
-                          <span className={`text-[9px] sm:text-[10px] uppercase font-bold ${p.status === 'success' ? 'text-emerald-400' : 'text-amber-400'}`}>
-                            {p.status}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 sm:p-6">
-                  <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-xs sm:text-sm font-bold text-white">Active Corporate Quotas</h3>
-                    <button type="button" onClick={() => setActiveTab('employer-requests')} className="text-sky-400 text-xs font-semibold hover:underline cursor-pointer">
-                      View All &rarr;
-                    </button>
-                  </div>
-                  <div className="space-y-2">
+                  <h3 className="text-xs sm:text-sm font-bold text-white mb-3">Recent Corporate Demands</h3>
+                  <div className="space-y-2.5">
                     {employerRequests.map((req) => (
                       <div key={req.id} className="bg-slate-900/80 border border-slate-700/60 p-3 rounded-xl flex items-center justify-between text-xs">
                         <div className="min-w-0 pr-2">
                           <div className="font-bold text-white truncate">{req.company_name}</div>
-                          <div className="text-[10px] sm:text-[11px] text-slate-400 truncate">{req.city}, {req.country}</div>
+                          <div className="text-[11px] text-sky-400 font-semibold truncate">{req.trade_requested} &bull; {req.country}</div>
                         </div>
-                        <div className="text-right shrink-0">
-                          <span className="bg-blue-600/20 text-sky-400 px-2 py-0.5 rounded text-[10px] font-bold block">
-                            {req.quota_number} Slots
-                          </span>
-                          <span className="text-[10px] text-slate-400 truncate max-w-[120px] block">{req.trade_requested}</span>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => openDispatchModal(req)}
+                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] rounded-lg transition shrink-0 cursor-pointer"
+                        >
+                          Dispatch
+                        </button>
                       </div>
                     ))}
                   </div>
+                </div>
+
+                <div className="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-4 sm:p-6">
+                  <h3 className="text-xs sm:text-sm font-bold text-white mb-3">Super Admin Operational Guidelines</h3>
+                  <ul className="text-xs text-slate-300 space-y-2 list-disc list-inside">
+                    <li>Audit all passport copies against national criteria before granting Verified status.</li>
+                    <li>Forward candidate dossiers directly to verified employer representatives.</li>
+                    <li>Registration fees must be confirmed via Paystack before deploying credentials.</li>
+                  </ul>
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB 2: CANDIDATES AUDITING & ADDRESS PIPELINE */}
+          {/* TAB 2: CANDIDATES AUDITING & PIPELINE */}
           {activeTab === 'candidates' && (
             <div className="space-y-4">
-              {/* Responsive Search and Action Bar */}
               <div className="bg-slate-800/80 border border-slate-700 p-3.5 sm:p-4 rounded-2xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 flex-1">
                   <input
@@ -906,25 +748,24 @@ export default function AdminDashboard() {
                 </button>
               </div>
 
-              {/* Table with Native Responsive Horizontal Scrolling */}
+              {/* Table */}
               <div className="bg-slate-800/90 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-xs min-w-[750px]">
+                  <table className="w-full text-left border-collapse text-xs min-w-[700px]">
                     <thead>
                       <tr className="bg-slate-900/90 text-slate-400 border-b border-slate-700 font-bold uppercase text-[10px] tracking-wider whitespace-nowrap">
                         <th className="p-3.5 sm:p-4">Applicant Profile</th>
-                        <th className="p-3.5 sm:p-4">Contact Address Dossier</th>
                         <th className="p-3.5 sm:p-4">Passport & Credentials</th>
                         <th className="p-3.5 sm:p-4">Trade & Target Country</th>
                         <th className="p-3.5 sm:p-4">Uploaded Files</th>
                         <th className="p-3.5 sm:p-4">Compliance Status</th>
-                        <th className="p-3.5 sm:p-4 text-right">Audit & Contact Protocols</th>
+                        <th className="p-3.5 sm:p-4 text-right">Action Protocol</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-700/60">
                       {filteredCandidates.length === 0 ? (
                         <tr>
-                          <td colSpan="7" className="p-8 text-center text-slate-500">
+                          <td colSpan="6" className="p-8 text-center text-slate-500">
                             No candidate dossiers matching your search parameters.
                           </td>
                         </tr>
@@ -932,25 +773,9 @@ export default function AdminDashboard() {
                         filteredCandidates.map((cand) => (
                           <tr key={cand.id} className="hover:bg-slate-700/40 transition">
                             <td className="p-3.5 sm:p-4">
-                              <div className="font-bold text-white text-sm">{cand.full_name || 'Unregistered Full Name'}</div>
-                              <div className="text-[11px] text-slate-400 mt-0.5">{cand.email || 'Email missing'}</div>
-                              <div className="text-[11px] text-sky-400 font-mono mt-0.5">{cand.phone || 'Phone missing'}</div>
-                            </td>
-
-                            <td className="p-3.5 sm:p-4 max-w-[220px]">
-                              <div className="text-slate-300 font-medium truncate">
-                                {cand.residential_address || 'No residential address recorded'}
-                              </div>
-                              <div className="text-[11px] text-slate-400 mt-0.5">
-                                {cand.city || 'Kano'}, {cand.state || 'Kano State'}, {cand.country || 'Nigeria'}
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => setContactModalData({ ...cand, type: 'candidate' })}
-                                className="mt-1.5 text-[10px] text-sky-400 hover:underline font-bold cursor-pointer inline-block"
-                              >
-                                ✏️ Edit Address / Contact
-                              </button>
+                              <div className="font-bold text-white text-sm">{cand.full_name || 'Unregistered'}</div>
+                              <div className="text-[11px] text-slate-400 mt-0.5">{cand.email}</div>
+                              <div className="text-[11px] text-sky-400 font-mono mt-0.5">{cand.phone}</div>
                             </td>
 
                             <td className="p-3.5 sm:p-4 font-mono font-medium text-slate-300 whitespace-nowrap">
@@ -959,12 +784,12 @@ export default function AdminDashboard() {
                                   {cand.passport_number}
                                 </span>
                               ) : (
-                                <span className="text-slate-500">Not Stated</span>
+                                <span className="text-slate-500">No Passport</span>
                               )}
                             </td>
 
                             <td className="p-3.5 sm:p-4">
-                              <div className="font-semibold text-slate-200">{cand.desired_role || cand.role || 'Skilled Personnel'}</div>
+                              <div className="font-semibold text-slate-200">{cand.desired_role || cand.role || 'Skilled Trades'}</div>
                               <span className="text-[11px] text-slate-400 block mt-0.5">
                                 Destination: <strong>{cand.target_country || 'Saudi Arabia'}</strong>
                               </span>
@@ -974,7 +799,7 @@ export default function AdminDashboard() {
                               <div className="flex flex-col gap-1 text-[11px]">
                                 {cand.cv_url ? (
                                   <a href={cand.cv_url} target="_blank" rel="noreferrer" className="text-sky-400 hover:underline font-semibold">
-                                    📄 Download CV
+                                    📄 {t.downloadCv}
                                   </a>
                                 ) : (
                                   <span className="text-slate-500">CV: Missing</span>
@@ -982,7 +807,7 @@ export default function AdminDashboard() {
 
                                 {cand.passport_data_page_url ? (
                                   <a href={cand.passport_data_page_url} target="_blank" rel="noreferrer" className="text-sky-400 hover:underline font-semibold">
-                                    🛂 Passport Page
+                                    🛂 {t.viewPassport}
                                   </a>
                                 ) : (
                                   <span className="text-slate-500">Data Page: Missing</span>
@@ -990,7 +815,7 @@ export default function AdminDashboard() {
 
                                 {cand.passport_photo_url ? (
                                   <a href={cand.passport_photo_url} target="_blank" rel="noreferrer" className="text-sky-400 hover:underline font-semibold">
-                                    🖼️ Passport Photo
+                                    🖼️ {t.viewPhoto}
                                   </a>
                                 ) : (
                                   <span className="text-slate-500">Photo: Missing</span>
@@ -1018,32 +843,23 @@ export default function AdminDashboard() {
                               <div className="inline-flex gap-1.5 mr-2">
                                 {cand.email && (
                                   <a
-                                    href={`mailto:${cand.email}?subject=AYAX Global Recruitment Dossier Review&body=Dear ${encodeURIComponent(cand.full_name || 'Candidate')},\n\nWe have reviewed your application and verification files for overseas mobilization.\n\nResidential Address on Record:\n${cand.residential_address || 'Unspecified'}\n\nRegards,\nAYAX Global Operations Bureau`}
+                                    href={`mailto:${cand.email}?subject=AYAX Global Recruitment Update&body=Dear ${encodeURIComponent(cand.full_name || 'Candidate')},\n\nThis is an official communication regarding your verification dossier.`}
                                     className="p-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-300 hover:text-white transition"
-                                    title="Send Official Email"
+                                    title="Send Email"
                                   >
                                     ✉️
                                   </a>
                                 )}
                                 {cand.phone && (
-                                  <>
-                                    <a
-                                      href={`https://wa.me/${cand.phone.replace(/[^0-9]/g, '')}`}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="p-1.5 bg-emerald-600/30 hover:bg-emerald-600 rounded-lg text-emerald-300 hover:text-white transition"
-                                      title="Open WhatsApp Desk"
-                                    >
-                                      💬
-                                    </a>
-                                    <a
-                                      href={`tel:${cand.phone}`}
-                                      className="p-1.5 bg-blue-600/30 hover:bg-blue-600 rounded-lg text-blue-300 hover:text-white transition"
-                                      title="Call Candidate Direct"
-                                    >
-                                      📞
-                                    </a>
-                                  </>
+                                  <a
+                                    href={`https://wa.me/${cand.phone.replace(/[^0-9]/g, '')}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="p-1.5 bg-emerald-600/30 hover:bg-emerald-600 rounded-lg text-emerald-300 hover:text-white transition"
+                                    title="WhatsApp"
+                                  >
+                                    💬
+                                  </a>
                                 )}
                               </div>
 
@@ -1068,14 +884,14 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* TAB 3: CORPORATE EMPLOYER QUOTA REQUESTS */}
+          {/* TAB 3: CORPORATE DEMANDS */}
           {activeTab === 'employer-requests' && (
             <div className="space-y-4 sm:space-y-6">
               <div className="bg-slate-800/80 border border-slate-700 p-4 sm:p-6 rounded-2xl shadow-lg">
                 <div className="flex justify-between items-center mb-4 sm:mb-6">
                   <div>
                     <h3 className="text-sm sm:text-base font-bold text-white">Corporate Recruitment Quota Requisitions</h3>
-                    <p className="text-xs text-slate-400 mt-1">Direct corporate inquiries, registered headquarters addresses, and quota allocations.</p>
+                    <p className="text-xs text-slate-400 mt-1">Review verified international employer requests.</p>
                   </div>
                 </div>
 
@@ -1091,45 +907,27 @@ export default function AdminDashboard() {
                         </div>
 
                         <h4 className="font-extrabold text-white text-base leading-snug">{req.company_name}</h4>
-                        <div className="text-[11px] font-mono text-slate-400 mt-0.5">RC: {req.commercial_rc}</div>
-                        
-                        <div className="mt-4 p-3 bg-slate-800/80 rounded-xl text-xs space-y-2 border border-slate-700/60">
-                          <div>
-                            <span className="text-[10px] font-bold uppercase text-slate-400 block">Registered Headquarters:</span>
-                            <span className="text-slate-200">{req.office_address}</span>
+                        <p className="text-xs font-semibold text-slate-300 mt-2">Specialization: {req.trade_requested}</p>
+                        <div className="mt-4 p-3 bg-slate-800/80 rounded-xl text-xs space-y-1">
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Approved Quota:</span>
+                            <strong className="text-white">{req.quota_number} Workforce Slots</strong>
                           </div>
-                          <div>
-                            <span className="text-[10px] font-bold uppercase text-slate-400 block">Lead Representative:</span>
-                            <span className="text-white font-semibold">{req.contact_person}</span>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Contact:</span>
+                            <span className="text-sky-400 truncate ml-2">{req.contact_email}</span>
                           </div>
-                          <div className="flex items-center justify-between pt-1 border-t border-slate-700/40">
-                            <span className="text-sky-400 font-mono text-[11px] truncate mr-2">{req.phone}</span>
-                            <div className="flex gap-1.5 shrink-0">
-                              <a href={`mailto:${req.contact_email}`} className="p-1.5 bg-slate-700 rounded text-white" title="Email Employer">✉️</a>
-                              <a href={`https://wa.me/${req.phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className="p-1.5 bg-emerald-600 rounded text-white" title="WhatsApp Employer">💬</a>
-                              <a href={`tel:${req.phone}`} className="p-1.5 bg-blue-600 rounded text-white" title="Call Direct">📞</a>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="mt-3 text-xs flex justify-between items-center">
-                          <span className="text-slate-400">Quota Demand:</span>
-                          <span className="text-emerald-400 font-bold">{req.quota_number} Workforce Slots ({req.trade_requested})</span>
                         </div>
                       </div>
 
                       <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
-                        <button
-                          type="button"
-                          onClick={() => setContactModalData({ ...req, type: 'employer' })}
-                          className="text-[11px] text-sky-400 hover:underline font-bold cursor-pointer"
-                        >
-                          ✏️ Update Address
-                        </button>
+                        <span className="text-[10px] font-bold uppercase text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">
+                          {req.status}
+                        </span>
                         <button
                           type="button"
                           onClick={() => openDispatchModal(req)}
-                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition shadow-sm cursor-pointer"
+                          className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition shadow-sm cursor-pointer"
                         >
                           Dispatch &rarr;
                         </button>
@@ -1141,97 +939,11 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* TAB 4: FINANCIAL AUDITING & PAYMENT LEDGER */}
-          {activeTab === 'finances' && (
-            <div className="space-y-4 sm:space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                <div className="bg-slate-800/90 border border-slate-700 p-4 sm:p-5 rounded-2xl shadow-lg">
-                  <span className="text-[10px] sm:text-[11px] font-bold uppercase text-emerald-400 tracking-wider block">Total Audited Revenue</span>
-                  <div className="text-2xl sm:text-3xl font-extrabold text-white mt-1">₦{totalSuccessfulRevenue.toLocaleString()}</div>
-                  <span className="text-[11px] sm:text-xs text-slate-400 mt-1 block">Paystack Verified Transactions</span>
-                </div>
-
-                <div className="bg-slate-800/90 border border-slate-700 p-4 sm:p-5 rounded-2xl shadow-lg">
-                  <span className="text-[10px] sm:text-[11px] font-bold uppercase text-sky-400 tracking-wider block">Successful Clearances</span>
-                  <div className="text-2xl sm:text-3xl font-extrabold text-sky-400 mt-1">
-                    {payments.filter((p) => p.status === 'success').length} Paid
-                  </div>
-                  <span className="text-[11px] sm:text-xs text-slate-400 mt-1 block">Audit & Biometric Fees Cleared</span>
-                </div>
-
-                <div className="bg-slate-800/90 border border-slate-700 p-4 sm:p-5 rounded-2xl shadow-lg">
-                  <span className="text-[10px] sm:text-[11px] font-bold uppercase text-amber-400 tracking-wider block">Pending Collections</span>
-                  <div className="text-2xl sm:text-3xl font-extrabold text-amber-400 mt-1">
-                    ₦{payments.filter((p) => p.status === 'pending').reduce((s, c) => s + Number(c.amount || 0), 0).toLocaleString()}
-                  </div>
-                  <span className="text-[11px] sm:text-xs text-slate-400 mt-1 block">Awaiting Confirmation</span>
-                </div>
-              </div>
-
-              <div className="bg-slate-800/90 border border-slate-700 rounded-2xl overflow-hidden shadow-xl">
-                <div className="p-4 border-b border-slate-700 flex justify-between items-center">
-                  <h3 className="text-xs sm:text-sm font-bold text-white">Live Payment Transactions Log</h3>
-                  <button type="button" onClick={() => window.print()} className="text-xs text-sky-400 font-bold hover:underline cursor-pointer">
-                    🖨️ Export / Print
-                  </button>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-xs min-w-[650px]">
-                    <thead>
-                      <tr className="bg-slate-900/90 text-slate-400 border-b border-slate-700 font-bold uppercase text-[10px] tracking-wider whitespace-nowrap">
-                        <th className="p-3.5 sm:p-4">Transaction Reference</th>
-                        <th className="p-3.5 sm:p-4">Candidate / Payer</th>
-                        <th className="p-3.5 sm:p-4">Settled Amount (NGN)</th>
-                        <th className="p-3.5 sm:p-4">Gateway & Channel</th>
-                        <th className="p-3.5 sm:p-4">Date & Time</th>
-                        <th className="p-3.5 sm:p-4 text-right">Payment Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-700/60">
-                      {payments.map((pay) => (
-                        <tr key={pay.id || pay.reference} className="hover:bg-slate-700/40 transition">
-                          <td className="p-3.5 sm:p-4 font-mono font-bold text-sky-400 whitespace-nowrap">
-                            {pay.reference || pay.id}
-                          </td>
-                          <td className="p-3.5 sm:p-4">
-                            <div className="font-bold text-white">{pay.candidate_name || 'Applicant'}</div>
-                            <div className="text-[11px] text-slate-400">{pay.candidate_email}</div>
-                          </td>
-                          <td className="p-3.5 sm:p-4 font-mono font-extrabold text-white text-sm whitespace-nowrap">
-                            ₦{Number(pay.amount).toLocaleString()}
-                          </td>
-                          <td className="p-3.5 sm:p-4 text-slate-300">
-                            {pay.payment_channel || 'Paystack Gateway'}
-                          </td>
-                          <td className="p-3.5 sm:p-4 text-slate-400 font-mono text-[11px] whitespace-nowrap">
-                            {pay.created_at || 'Just now'}
-                          </td>
-                          <td className="p-3.5 sm:p-4 text-right whitespace-nowrap">
-                            <span
-                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                pay.status === 'success'
-                                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                                  : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                              }`}
-                            >
-                              {pay.status === 'success' ? 'Settled (Paid)' : 'Pending'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 5: PUBLISH JOB VACANCIES */}
+          {/* TAB 4: PUBLISH JOB */}
           {activeTab === 'post-job' && (
             <div className="max-w-3xl mx-auto bg-slate-800/80 border border-slate-700 p-4 sm:p-8 rounded-2xl shadow-xl">
               <h3 className="text-base sm:text-lg font-black text-white mb-1">Publish New Overseas Employment Vacancy</h3>
-              <p className="text-xs text-slate-400 mb-4 sm:mb-6">Published contracts become visible on candidate portals and public listings.</p>
+              <p className="text-xs text-slate-400 mb-4 sm:mb-6">Published contracts become visible on candidate portals.</p>
 
               {jobFeedback.text && (
                 <div
@@ -1258,7 +970,7 @@ export default function AdminDashboard() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block font-semibold text-slate-300 mb-1.5">Destination Country *</label>
                     <input
@@ -1266,7 +978,7 @@ export default function AdminDashboard() {
                       required
                       value={country}
                       onChange={(e) => setCountry(e.target.value)}
-                      placeholder="e.g. Saudi Arabia, UAE, United Kingdom"
+                      placeholder="e.g. Saudi Arabia, UAE, Poland"
                       className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -1283,9 +995,9 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-semibold text-slate-300 mb-1.5">Auditing & Registration Fee (₦) *</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Registration Fee (₦) *</label>
                     <input
                       type="number"
                       required
@@ -1295,7 +1007,7 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold text-slate-300 mb-1.5">Mobilization Timeline *</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Timeline *</label>
                     <input
                       type="text"
                       required
@@ -1308,12 +1020,12 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1.5">Contract Specifications & Quota Terms</label>
+                  <label className="block font-semibold text-slate-300 mb-1.5">Details</label>
                   <textarea
-                    rows="4"
+                    rows="3.5"
                     value={processingDetails}
                     onChange={(e) => setProcessingDetails(e.target.value)}
-                    placeholder="Specify flight itinerary details, corporate lodging provisions, GAMCA medicals..."
+                    placeholder="Specify flight, lodging, and GAMCA medical terms..."
                     className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   ></textarea>
                 </div>
@@ -1323,16 +1035,16 @@ export default function AdminDashboard() {
                   disabled={postingJob}
                   className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow-lg disabled:bg-slate-700 cursor-pointer"
                 >
-                  {postingJob ? 'Registering Vacancy...' : 'Publish Official Vacancy to Portal'}
+                  {postingJob ? 'Registering...' : 'Publish Official Vacancy to Portal'}
                 </button>
               </form>
             </div>
           )}
 
-          {/* TAB 6: ACTIVE VACANCIES */}
+          {/* TAB 5: ACTIVE JOBS */}
           {activeTab === 'jobs' && (
             <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {jobs.map((job) => (
                   <div key={job.id} className="bg-slate-800/80 border border-slate-700 p-4 sm:p-5 rounded-2xl flex flex-col justify-between shadow-md">
                     <div>
@@ -1361,12 +1073,12 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* TAB 7: STAFF USER CREATION & RBAC */}
+          {/* TAB 6: STAFF MANAGEMENT */}
           {activeTab === 'staff' && (
             <div className="space-y-6 sm:space-y-8">
               <div className="max-w-2xl bg-slate-800/80 border border-slate-700 p-4 sm:p-6 rounded-2xl shadow-xl">
                 <h3 className="text-base font-bold text-white mb-1">Create Administrative Officer / Auditor Account</h3>
-                <p className="text-xs text-slate-400 mb-4 sm:mb-6">Authorize internal staff members to conduct document reviews and candidate audits.</p>
+                <p className="text-xs text-slate-400 mb-4 sm:mb-6">Authorize internal staff members to conduct document reviews.</p>
 
                 {staffFeedback.text && (
                   <div
@@ -1388,7 +1100,7 @@ export default function AdminDashboard() {
                       required
                       value={staffName}
                       onChange={(e) => setStaffName(e.target.value)}
-                      placeholder="e.g. Ibrahim Abubakar (Verification Desk Officer)"
+                      placeholder="e.g. Ibrahim Abubakar"
                       className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -1406,20 +1118,20 @@ export default function AdminDashboard() {
                       />
                     </div>
                     <div>
-                      <label className="block font-semibold text-slate-300 mb-1">Assigned Security Role *</label>
+                      <label className="block font-semibold text-slate-300 mb-1">Security Role *</label>
                       <select
                         value={staffRole}
                         onChange={(e) => setStaffRole(e.target.value)}
                         className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold"
                       >
-                        <option value="staff">Staff (Auditor & Document Reviewer)</option>
-                        <option value="admin">Super Admin (Full Platform Control)</option>
+                        <option value="staff">Staff (Auditor & Reviewer)</option>
+                        <option value="admin">Super Admin (Full Control)</option>
                       </select>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-slate-300 mb-1">Initial Password *</label>
+                    <label className="block font-semibold text-slate-300 mb-1">Password *</label>
                     <input
                       type="password"
                       required
@@ -1435,7 +1147,7 @@ export default function AdminDashboard() {
                     disabled={creatingStaff}
                     className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition disabled:bg-slate-700 cursor-pointer"
                   >
-                    {creatingStaff ? 'Creating Staff Member...' : 'Register Authorized Staff Member'}
+                    {creatingStaff ? 'Creating...' : 'Register Authorized Staff Member'}
                   </button>
                 </form>
               </div>
@@ -1462,144 +1174,7 @@ export default function AdminDashboard() {
         </main>
       </div>
 
-      {/* 4. CONTACT & ADDRESS EDITING DOSSIER MODAL */}
-      {contactModalData && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-[#0a2540] border border-slate-700 w-full max-w-xl rounded-2xl p-4 sm:p-6 shadow-2xl text-xs space-y-4 my-auto">
-            <div className="flex justify-between items-center border-b border-slate-700 pb-3">
-              <div className="min-w-0 pr-2">
-                <h3 className="text-sm sm:text-base font-black text-white truncate">{t.editAddress}</h3>
-                <span className="text-[11px] text-sky-400 font-semibold truncate block">
-                  {contactModalData.type === 'candidate' ? contactModalData.full_name : contactModalData.company_name}
-                </span>
-              </div>
-              <button type="button" onClick={() => setContactModalData(null)} className="text-slate-400 hover:text-white font-bold text-lg cursor-pointer">
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveContactDossier} className="space-y-4">
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">
-                  {contactModalData.type === 'candidate' ? 'Full Legal Name' : 'Company Name'} *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={contactModalData.type === 'candidate' ? contactModalData.full_name || '' : contactModalData.company_name || ''}
-                  onChange={(e) =>
-                    setContactModalData({
-                      ...contactModalData,
-                      [contactModalData.type === 'candidate' ? 'full_name' : 'company_name']: e.target.value,
-                    })
-                  }
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Contact Email *</label>
-                  <input
-                    type="email"
-                    required
-                    value={contactModalData.email || contactModalData.contact_email || ''}
-                    onChange={(e) =>
-                      setContactModalData({
-                        ...contactModalData,
-                        [contactModalData.type === 'candidate' ? 'email' : 'contact_email']: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Official Telephone / WhatsApp *</label>
-                  <input
-                    type="text"
-                    required
-                    value={contactModalData.phone || ''}
-                    onChange={(e) => setContactModalData({ ...contactModalData, phone: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1">
-                  {contactModalData.type === 'candidate' ? 'Residential Street Address' : 'Corporate Headquarters Address'} *
-                </label>
-                <textarea
-                  rows="2.5"
-                  required
-                  value={
-                    contactModalData.type === 'candidate'
-                      ? contactModalData.residential_address || ''
-                      : contactModalData.office_address || ''
-                  }
-                  onChange={(e) =>
-                    setContactModalData({
-                      ...contactModalData,
-                      [contactModalData.type === 'candidate' ? 'residential_address' : 'office_address']: e.target.value,
-                    })
-                  }
-                  placeholder="Street name, plot number, office suite, plaza..."
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                ></textarea>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-300 mb-1">City</label>
-                  <input
-                    type="text"
-                    value={contactModalData.city || ''}
-                    onChange={(e) => setContactModalData({ ...contactModalData, city: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-slate-300 mb-1">State / Province</label>
-                  <input
-                    type="text"
-                    value={contactModalData.state || ''}
-                    onChange={(e) => setContactModalData({ ...contactModalData, state: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Country</label>
-                  <input
-                    type="text"
-                    value={contactModalData.country || ''}
-                    onChange={(e) => setContactModalData({ ...contactModalData, country: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-white"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-3 border-t border-slate-700">
-                <button
-                  type="button"
-                  onClick={() => setContactModalData(null)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={savingContact}
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition shadow-lg cursor-pointer"
-                >
-                  {savingContact ? 'Saving Record...' : 'Save & Update Dossier'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* 5. DISPATCH MODAL FOR CORPORATE NOTIFICATIONS */}
+      {/* 4. DISPATCH MODAL */}
       {selectedRequest && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div className="bg-[#0a2540] border border-slate-700 w-full max-w-2xl rounded-2xl p-4 sm:p-6 shadow-2xl text-xs space-y-4 my-auto">
@@ -1622,7 +1197,7 @@ export default function AdminDashboard() {
                 <div className="text-4xl">✅</div>
                 <h4 className="text-base font-bold text-emerald-400">Roster Successfully Dispatched!</h4>
                 <p className="text-slate-300 text-xs">
-                  Official notification and candidate trade evaluation report forwarded to {selectedRequest.contact_email}.
+                  Official notification and candidate evaluation report forwarded to {selectedRequest.contact_email}.
                 </p>
               </div>
             ) : (
@@ -1647,7 +1222,6 @@ export default function AdminDashboard() {
                           <input type="checkbox" defaultChecked className="rounded text-blue-600 focus:ring-0" />
                           <span className="font-semibold text-white">{c.full_name}</span>
                           <span className="text-slate-400 font-mono text-[10px]">({c.passport_number || 'Passport Audited'})</span>
-                          <span className="text-slate-500 text-[10px] ml-auto">{c.city || 'Kano'}, {c.country || 'Nigeria'}</span>
                         </label>
                       ))}
                   </div>
